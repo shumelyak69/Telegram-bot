@@ -1,0 +1,30 @@
+import asyncio
+from aiogram import Bot, Dispatcher, types
+  from openai import AsyncOpenAI
+  
+  # --- НАСТРОЙКИ ---
+  BOT_TOKEN = "ВАШ_ТОКЕН_ТЕЛЕГРАМ_БОТА"
+  OPENAI_API_KEY = "ВАШ_ТОКЕН_CHAT_GPT"
+  # -----------------  
+  
+  client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+  bot = Bot(token=BOT_TOKEN)            
+  dp = Dispatcher()
+  
+  @dp.message()
+  async def handle_message(message: types.Message):
+      if not message.text:
+          return
+  
+      response = await client.chat.completions.create(
+          model="gpt-3.5-turbo",
+          messages=[{"role": "user", "content": message.text}]
+      )
+      
+      await message.answer(response.choices[0].message.content)
+  
+  async def main():
+      await dp.start_polling(bot)
+  
+  if __name__ == "__main__":
+      asyncio.run(main())
